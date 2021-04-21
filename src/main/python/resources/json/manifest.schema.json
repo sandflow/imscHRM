@@ -1,0 +1,36 @@
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "title": "IMSC HRM manifest file",
+    "description": "Contains a list of IMSC documents against which the IMSC HRM is evaluated",
+    "properties": {
+      "begin": {
+        "description": "Begin time (inclusive) of the document (in seconds)",
+        "oneOf": [
+          { "$ref": "#/definitions/rational" },
+          { "type": "number" }
+        ]
+      },
+      "end": {
+        "description": "End time (exclusive) of the document (in seconds)",
+        "oneOf": [
+          { "$ref": "#/definitions/rational" },
+          { "type": "number" },
+          { "type": "null" }
+        ]
+      },
+      "path": {
+        "description": "Relative path of the document",
+        "type": "string"
+      }
+    },
+    "required": ["begin", "end", "path"]
+  },
+  "definitions": {
+    "rational": {
+      "type": "string",
+      "pattern": "[0-9]+/[0-9]+"
+    }
+  }
+}

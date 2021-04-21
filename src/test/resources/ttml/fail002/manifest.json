@@ -1,0 +1,12 @@
+[
+  {
+    "begin": 0.9,
+    "end": 1,
+    "path": "doc001.ttml"
+  },
+  {
+    "begin": 1,
+    "end": 2,
+    "path": "doc002.ttml"
+  }
+]
