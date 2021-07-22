@@ -37,8 +37,6 @@ import json
 import imschrm.hrm
 import imschrm.doc_sequence
 
-logging.basicConfig(level=logging.WARNING)
-
 LOGGER = logging.getLogger("hrm-validator")
 
 class EventHandler(imschrm.hrm.EventHandler):
@@ -46,9 +44,9 @@ class EventHandler(imschrm.hrm.EventHandler):
   def __init__(self):
     self.failed = False
 
-  def error(self, msg: str, doc_index: int, time_offset: Fraction):
+  def error(self, msg: str, doc_index: int, time_offset: Fraction, available_time: Fraction, stats: imschrm.hrm.ISDStatistics):
     self.failed = True
-    super().error(msg, doc_index, time_offset)
+    super().error(msg, doc_index, time_offset, available_time, stats)
 
 
 class LocalFileSequence:
@@ -79,6 +77,7 @@ def main(argv=None):
 
   parser = argparse.ArgumentParser(description='Verifies that an IMSC document conforms to the HRM')
   parser.add_argument('input', help='Path to the input document')
+  parser.add_argument('--verbose', action='store_true', help='Print additional debug messages')
   parser.add_argument('--itype', choices=['ttml', 'manifest'], default="ttml", help='Type of input')
 
   args = parser.parse_args(argv)
@@ -89,6 +88,12 @@ def main(argv=None):
     doc_sequence = SingleLocalFile(args.input)
   else:
     doc_sequence = LocalFileSequence(args.input)
+
+  if args.verbose:
+    logging.basicConfig(level=logging.DEBUG)
+  else:
+    logging.basicConfig(level=logging.WARNING)
+
 
   imschrm.hrm.validate(imschrm.doc_sequence.iter_isd(doc_sequence), ev)
 

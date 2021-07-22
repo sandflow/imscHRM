@@ -52,22 +52,42 @@ _NGBS = 1
 
 _IPD = 1
 
+@dataclass
+class ISDStatistics:
+  dur: Number = 0 # HRM ISD time
+  dur_d: Number = 0 # HRM background drawing time
+  nbg_total: Number = 0 # Number of backgrounds drawn
+  dur_t: Number = 0 # HRM text drawing time
+  ngra_t: Number = 0 # Total Normalized Rendered Glyph Area
+  gcpy_count: Number = 0 # Total number of glyphs copied
+  gren_count: Number = 0 # Total number of glyphs rendered
+
+
 class EventHandler:
   '''Allows a callee to inform the caller of events that occur during processing. Typically
   overridden by the caller.
   '''
+  
+  @staticmethod
+  def _format_message(msg: str, doc_index: int, time_offset: Fraction, available_time: Fraction, stats: ISDStatistics):
+    return (
+      f"{msg} at {float(time_offset):.3f}s (doc #{doc_index})\n"
+      f"  available time: {float(available_time):.3f}s | HRM time: {float(stats.dur):.3f}\n"
+      f"  Glyph copy count: {stats.gcpy_count} | render count: {stats.gren_count} | Background draw count: {stats.nbg_total}\n"
+    )
 
-  def info(self, msg: str, doc_index: int, time_offset: Fraction):
-    LOGGER.info(f"{time_offset:.3f} (doc #{doc_index}): {msg}")
 
-  def warn(self, msg: str, doc_index: int, time_offset: Fraction):
-    LOGGER.warning(f"{time_offset} (doc #{doc_index}): {msg}")
+  def info(self, msg: str, doc_index: int, time_offset: Fraction, available_time: Fraction, stats: ISDStatistics):
+    LOGGER.info(EventHandler._format_message(msg, doc_index, time_offset, available_time, stats))
 
-  def error(self, msg: str, doc_index: int, time_offset: Fraction):
-    LOGGER.error(f"{time_offset} (doc #{doc_index}): {msg}")
+  def warn(self, msg: str, doc_index: int, time_offset: Fraction, available_time: Fraction, stats: ISDStatistics):
+    LOGGER.warning(EventHandler._format_message(msg, doc_index, time_offset, available_time, stats))
 
-  def debug(self, msg: str, doc_index: int, time_offset: Fraction):
-    LOGGER.debug(f"{time_offset} (doc #{doc_index}): {msg}")
+  def error(self, msg: str, doc_index: int, time_offset: Fraction, available_time: Fraction, stats: ISDStatistics):
+    LOGGER.error(EventHandler._format_message(msg, doc_index, time_offset, available_time, stats))
+
+  def debug(self, msg: str, doc_index: int, time_offset: Fraction, available_time: Fraction, stats: ISDStatistics):
+    LOGGER.debug(EventHandler._format_message(msg, doc_index, time_offset, available_time, stats))
 
 
 def validate(isd_iterator: typing.Iterator[typing.Tuple[Fraction, ttconv.isd.ISD]], event_handler: typing.Type[EventHandler]=EventHandler()):
@@ -77,7 +97,7 @@ def validate(isd_iterator: typing.Iterator[typing.Tuple[Fraction, ttconv.isd.ISD
   ISD. Errors, warnings and info messages are signalled through callbacks on the `event_handler`.
   '''
 
-  back_buffer = set()
+  hrm = HRM()
 
   last_offset = 0
 
@@ -86,26 +106,22 @@ def validate(isd_iterator: typing.Iterator[typing.Tuple[Fraction, ttconv.isd.ISD
     if time_offset < last_offset:
       raise RuntimeError("ISDs are not in order of increasing offset")
 
-    dur, ngra_t, back_buffer = _compute_dur(isd, doc_index, back_buffer)
+    stats = hrm.next_isd(isd, doc_index)
 
     avail_render_time = _IPD if doc_index == 0 else time_offset - last_offset
 
-    if dur > avail_render_time:
-      event_handler.error(f"Rendering time exceeded ({float(dur):.3} > {float(avail_render_time):.3})", doc_index, time_offset)
+    if stats.dur > avail_render_time:
+      event_handler.error("Rendering time exceeded", doc_index, time_offset, avail_render_time, stats)
 
-    if ngra_t > 1:
-      event_handler.error("NGBS exceeded", doc_index, time_offset)
+    if stats.ngra_t > 1:
+      event_handler.error("NGBS exceeded", doc_index, time_offset, avail_render_time, stats)
 
-    event_handler.debug(
-      f"Render time {float(dur):.3}, available time {float(avail_render_time):.3}, glyph buffer size {float(ngra_t):.3}",
-      doc_index, time_offset
-    )
+    event_handler.debug("Processed document", doc_index, time_offset, avail_render_time, stats)
 
     last_offset = time_offset
 
 @dataclass(frozen=True)
 class _Glyph:
-
   char: str
   color : styles.ColorType
   font_family: typing.Tuple[typing.Union[str, styles.GenericFontFamilyType]]
@@ -117,111 +133,129 @@ class _Glyph:
   text_shadow: styles.TextShadowType
   background_color: styles.ColorType
 
-def _compute_dur(
-  isd: typing.Type[ttconv.isd.ISD],
-  index: int,
-  back_buffer: typing.Set[_Glyph]
-  ) -> typing.Tuple[Number, Number, typing.Set[_Glyph]]:
+class HRM:
 
-  dur_t, ngra_t, front_buffer = _compute_dur_t(isd, index, back_buffer)
+  def __init__(self):
+    self.back_buffer: typing.Set[_Glyph] = set()
+    self.isd_stats: ISDStatistics = None
+    
+  def next_isd(
+    self,
+    isd: typing.Type[ttconv.isd.ISD],
+    index_n: int,
+    ) -> ISDStatistics:
 
-  dur = _compute_tot_norm_draw_area(isd, index) / _BDRAW + dur_t
+    self.isd_stats = ISDStatistics()
 
-  return (dur, ngra_t, front_buffer)
+    self._compute_dur_t(isd, index_n)
 
-def _compute_tot_norm_draw_area(isd: typing.Type[ttconv.isd.ISD], index_n: int):
-  
-  draw_area = 0 if index_n == 0 else 1
+    self._compute_dur_d(isd, index_n)
 
-  if isd is not None:
-    for region in isd.iter_regions():
+    self.isd_stats.dur = self.isd_stats.dur_t + self.isd_stats.dur_d
 
-      if not _is_presented_region(region):
-        continue
+    return self.isd_stats
 
-      nbg = 0
+  def _compute_dur_d(
+    self,
+    isd: typing.Type[ttconv.isd.ISD],
+    index_n: int
+    ):
 
-      for element in region.dfs_iterator():
+    draw_area = 0 if index_n == 0 else 1
 
-        # should body elements really be excluded? -> NO
-        # should transparent backgrounds really be counted? -> NO
-        # should span and br really be included -> yes for now
+    if isd is not None:
+      for region in isd.iter_regions():
 
-        bg_color = element.get_style(styles.StyleProperties.BackgroundColor)
-
-        if bg_color is not None:
-          if bg_color.ident is not styles.ColorType.Colorimetry.RGBA8:
-            raise RuntimeError(f"Unsupported colorimetry system: {bg_color.ident}")
-
-          if bg_color.components[3] != 0:
-            nbg += 1
-
-      draw_area += _region_normalized_size(region) * nbg
-
-  return draw_area
-
-def _compute_dur_t(
-  isd: typing.Type[ttconv.isd.ISD],
-  _index_n: int,
-  back_buffer: typing.Set[_Glyph]
-  ) -> typing.Tuple[Number, Number, typing.Set[_Glyph]]:
-
-  front_buffer = set()
-
-  dur_t = 0
-
-  ngra_t = 0
-
-  if isd is not None:
-
-    for region in isd.iter_regions():
-
-      if not _is_presented_region(region):
-        continue
-
-      for element in region.dfs_iterator():
-
-        if not isinstance(element, ttconv.model.Text):
+        if not _is_presented_region(region):
           continue
 
-        parent = element.parent()
+        nbg = 0
 
-        nrga = _compute_nrga(element)
-        
-        for char in element.get_text():
+        for element in region.dfs_iterator():
 
-          glyph = _Glyph(
-            char=char,
-            color=parent.get_style(styles.StyleProperties.Color),
-            font_family=parent.get_style(styles.StyleProperties.FontFamily),
-            font_size=parent.get_style(styles.StyleProperties.FontSize),
-            font_style=parent.get_style(styles.StyleProperties.FontStyle),
-            font_weight=parent.get_style(styles.StyleProperties.FontWeight),
-            text_decoration=parent.get_style(styles.StyleProperties.TextDecoration),
-            text_outline=parent.get_style(styles.StyleProperties.TextOutline),
-            text_shadow=parent.get_style(styles.StyleProperties.TextShadow),
-            background_color=parent.get_style(styles.StyleProperties.BackgroundColor)
-          )
+          # should body elements really be excluded? -> NO
+          # should transparent backgrounds really be counted? -> NO
+          # should span and br really be included -> yes for now
 
-          if glyph in front_buffer:
+          bg_color = element.get_style(styles.StyleProperties.BackgroundColor)
 
-            dur_t += nrga / _compute_gcpy(char)
+          if bg_color is not None:
+            if bg_color.ident is not styles.ColorType.Colorimetry.RGBA8:
+              raise RuntimeError(f"Unsupported colorimetry system: {bg_color.ident}")
 
-          elif glyph in back_buffer:
+            if bg_color.components[3] != 0:
+              nbg += 1
 
-            dur_t += nrga / _compute_gcpy(char)
+        draw_area += _region_normalized_size(region) * nbg
 
-            ngra_t += nrga
+        self.isd_stats.nbg_total += nbg
 
-          else:
-            
-            dur_t += nrga / _compute_ren_g(char)
+    self.isd_stats.dur_d = draw_area / _BDRAW
 
-            ngra_t += nrga          
+  def _compute_dur_t(
+    self,
+    isd: typing.Type[ttconv.isd.ISD],
+    _index_n: int
+    ):
 
-          front_buffer.add(glyph)
+    front_buffer = set()
 
-  return (dur_t, ngra_t, front_buffer)
+    if isd is not None:
+
+      for region in isd.iter_regions():
+
+        if not _is_presented_region(region):
+          continue
+
+        for element in region.dfs_iterator():
+
+          if not isinstance(element, ttconv.model.Text):
+            continue
+
+          parent = element.parent()
+
+          nrga = _compute_nrga(element)
+          
+          for char in element.get_text():
+
+            glyph = _Glyph(
+              char=char,
+              color=parent.get_style(styles.StyleProperties.Color),
+              font_family=parent.get_style(styles.StyleProperties.FontFamily),
+              font_size=parent.get_style(styles.StyleProperties.FontSize),
+              font_style=parent.get_style(styles.StyleProperties.FontStyle),
+              font_weight=parent.get_style(styles.StyleProperties.FontWeight),
+              text_decoration=parent.get_style(styles.StyleProperties.TextDecoration),
+              text_outline=parent.get_style(styles.StyleProperties.TextOutline),
+              text_shadow=parent.get_style(styles.StyleProperties.TextShadow),
+              background_color=parent.get_style(styles.StyleProperties.BackgroundColor)
+            )
+
+            if glyph in front_buffer:
+
+              self.isd_stats.dur_t += nrga / _compute_gcpy(char)
+
+              self.isd_stats.gcpy_count += 1
+
+            elif glyph in self.back_buffer:
+
+              self.isd_stats.dur_t += nrga / _compute_gcpy(char)
+
+              self.isd_stats.ngra_t += nrga
+
+              self.isd_stats.gcpy_count += 1
+
+            else:
+              
+              self.isd_stats.dur_t += nrga / _compute_ren_g(char)
+
+              self.isd_stats.ngra_t += nrga
+
+              self.isd_stats.gren_count += 1
+
+            front_buffer.add(glyph)
+
+    self.back_buffer = front_buffer
 
 def _compute_nrga(element: typing.Type[ttconv.model.Text]):
 

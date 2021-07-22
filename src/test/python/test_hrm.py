@@ -94,7 +94,9 @@ class HRMValidator(unittest.TestCase):
 
     # run HRM
 
-    dur, ngra_t, _backbuffer = hrm._compute_dur(isd, 0, set()) 
+    hrm_runner = hrm.HRM()
+
+    stats = hrm_runner.next_isd(isd, 0) 
 
     clear_e_n = 0
 
@@ -102,9 +104,15 @@ class HRMValidator(unittest.TestCase):
 
     dur_t = 1/15 * 1/15 * (4 / _REN_G_OTHER + 1 / _GCPY_BASE)
 
-    self.assertAlmostEqual(dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+    self.assertEqual(stats.gren_count, 4)
 
-    self.assertAlmostEqual(ngra_t, 1/15 * 1/15 * 4)
+    self.assertEqual(stats.gcpy_count, 1)
+
+    self.assertEqual(stats.nbg_total, 0)
+
+    self.assertAlmostEqual(stats.dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+
+    self.assertAlmostEqual(stats.ngra_t, 1/15 * 1/15 * 4)
 
   def test_buffering_across_isds(self):
     ttml_doc = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -130,11 +138,13 @@ class HRMValidator(unittest.TestCase):
 
     doc = ttconv.imsc.reader.to_model(et.ElementTree(et.fromstring(ttml_doc)))
 
+    hrm_runner = hrm.HRM()
+
     # isd at t = 0
 
     isd0 = ttconv.isd.ISD.from_model(doc, 0)
 
-    dur, ngra_t, back_buffer = hrm._compute_dur(isd0, 0, set()) 
+    stats = hrm_runner.next_isd(isd0, 0) 
 
     clear_e_n = 0
 
@@ -142,15 +152,21 @@ class HRMValidator(unittest.TestCase):
 
     dur_t = 1/15 * 1/15 * (4 / _REN_G_OTHER + 1 / _GCPY_BASE)
 
-    self.assertAlmostEqual(dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+    self.assertEqual(stats.gren_count, 4)
 
-    self.assertAlmostEqual(ngra_t, 1/15 * 1/15 * 4)
+    self.assertEqual(stats.gcpy_count, 1)
+
+    self.assertEqual(stats.nbg_total, 0)
+
+    self.assertAlmostEqual(stats.dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+
+    self.assertAlmostEqual(stats.ngra_t, 1/15 * 1/15 * 4)
 
     # isd at t = 1
 
     isd1 = ttconv.isd.ISD.from_model(doc, 1)
 
-    dur, ngra_t, back_buffer = hrm._compute_dur(isd1, 1, back_buffer) 
+    stats = hrm_runner.next_isd(isd1, 1) 
 
     clear_e_n = 1
 
@@ -158,9 +174,15 @@ class HRMValidator(unittest.TestCase):
 
     dur_t = 1/15 * 1/15 * (6 / _REN_G_OTHER + 9 / _GCPY_BASE)
 
-    self.assertAlmostEqual(dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+    self.assertEqual(stats.gren_count, 6)
 
-    self.assertAlmostEqual(ngra_t, 1/15 * 1/15 * 7)
+    self.assertEqual(stats.gcpy_count, 9)
+
+    self.assertEqual(stats.nbg_total, 0)
+
+    self.assertAlmostEqual(stats.dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+
+    self.assertAlmostEqual(stats.ngra_t, 1/15 * 1/15 * 7)
     
   def test_doc_3(self):
     ttml_doc = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -183,13 +205,15 @@ class HRMValidator(unittest.TestCase):
 
     doc = ttconv.imsc.reader.to_model(et.ElementTree(et.fromstring(ttml_doc)))
 
+    hrm_runner = hrm.HRM()
+
     # create ISDs
 
     isd = ttconv.isd.ISD.from_model(doc, 0)
 
     # run HRM
 
-    dur, ngra_t, _backbuffer = hrm._compute_dur(isd, 0, set()) 
+    stats = hrm_runner.next_isd(isd, 0) 
 
     clear_e_n = 0
 
@@ -197,9 +221,15 @@ class HRMValidator(unittest.TestCase):
 
     dur_t = 1/15 * 1/15 * (4 / _REN_G_OTHER + 1 / _GCPY_BASE)
 
-    self.assertAlmostEqual(dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+    self.assertEqual(stats.gren_count, 4)
 
-    self.assertAlmostEqual(ngra_t, 1/15 * 1/15 * 4)
+    self.assertEqual(stats.gcpy_count, 1)
+
+    self.assertEqual(stats.nbg_total, 0)
+
+    self.assertAlmostEqual(stats.dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+
+    self.assertAlmostEqual(stats.ngra_t, 1/15 * 1/15 * 4)
 
   def test_doc_4(self):
     ttml_doc = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -228,7 +258,9 @@ class HRMValidator(unittest.TestCase):
 
     # run HRM
 
-    dur, ngra_t, _backbuffer = hrm._compute_dur(isd, 0, set()) 
+    hrm_runner = hrm.HRM()
+
+    stats = hrm_runner.next_isd(isd, 0) 
 
     clear_e_n = 0
 
@@ -236,9 +268,15 @@ class HRMValidator(unittest.TestCase):
 
     dur_t = 1/15 * 1/15 * (3 / _REN_G_OTHER)
 
-    self.assertAlmostEqual(dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+    self.assertEqual(stats.gren_count, 3)
 
-    self.assertAlmostEqual(ngra_t, 1/15 * 1/15 * 3)
+    self.assertEqual(stats.gcpy_count, 0)
+
+    self.assertEqual(stats.nbg_total, 1)
+
+    self.assertAlmostEqual(stats.dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+
+    self.assertAlmostEqual(stats.ngra_t, 1/15 * 1/15 * 3)
 
   def test_same_char_diff_color(self):
     ttml_doc = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -267,7 +305,9 @@ class HRMValidator(unittest.TestCase):
 
     # run HRM
 
-    dur, ngra_t, _backbuffer = hrm._compute_dur(isd, 0, set()) 
+    hrm_runner = hrm.HRM()
+
+    stats = hrm_runner.next_isd(isd, 0) 
 
     clear_e_n = 0
 
@@ -275,9 +315,15 @@ class HRMValidator(unittest.TestCase):
 
     dur_t = 1/15 * 1/15 * (5 / _REN_G_OTHER)
 
-    self.assertAlmostEqual(dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+    self.assertEqual(stats.gren_count, 5)
 
-    self.assertAlmostEqual(ngra_t, 1/15 * 1/15 * 5)
+    self.assertEqual(stats.gcpy_count, 0)
+
+    self.assertEqual(stats.nbg_total, 0)
+
+    self.assertAlmostEqual(stats.dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+
+    self.assertAlmostEqual(stats.ngra_t, 1/15 * 1/15 * 5)
 
   def test_cjk(self):
     ttml_doc = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -306,7 +352,9 @@ class HRMValidator(unittest.TestCase):
 
     # run HRM
 
-    dur, ngra_t, _backbuffer = hrm._compute_dur(isd, 0, set()) 
+    hrm_runner = hrm.HRM()
+
+    stats = hrm_runner.next_isd(isd, 0) 
 
     clear_e_n = 0
 
@@ -314,9 +362,15 @@ class HRMValidator(unittest.TestCase):
 
     dur_t = 1/15 * 1/15 * (2 / _REN_G_CJK + 2 / _GCPY_OTHER)
 
-    self.assertAlmostEqual(dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+    self.assertEqual(stats.gren_count, 2)
 
-    self.assertAlmostEqual(ngra_t, 1/15 * 1/15 * 2)
+    self.assertEqual(stats.gcpy_count, 2)
+
+    self.assertEqual(stats.nbg_total, 0)
+
+    self.assertAlmostEqual(stats.dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+
+    self.assertAlmostEqual(stats.ngra_t, 1/15 * 1/15 * 2)
 
   def test_complex_non_cjk(self):
     ttml_doc = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -345,7 +399,9 @@ class HRMValidator(unittest.TestCase):
 
     # run HRM
 
-    dur, ngra_t, _backbuffer = hrm._compute_dur(isd, 0, set()) 
+    hrm_runner = hrm.HRM()
+
+    stats = hrm_runner.next_isd(isd, 0) 
 
     clear_e_n = 0
 
@@ -353,9 +409,15 @@ class HRMValidator(unittest.TestCase):
 
     dur_t = 1/15 * 1/15 * (5 / _REN_G_OTHER + 5 / _GCPY_OTHER)
 
-    self.assertAlmostEqual(dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+    self.assertEqual(stats.gren_count, 5)
 
-    self.assertAlmostEqual(ngra_t, 1/15 * 1/15 * 5)
+    self.assertEqual(stats.gcpy_count, 5)
+
+    self.assertEqual(stats.nbg_total, 0)
+
+    self.assertAlmostEqual(stats.dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+
+    self.assertAlmostEqual(stats.ngra_t, 1/15 * 1/15 * 5)
 
   def test_multiple_regions(self):
     ttml_doc = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -389,7 +451,9 @@ class HRMValidator(unittest.TestCase):
 
     # run HRM
 
-    dur, ngra_t, _backbuffer = hrm._compute_dur(isd, 0, set()) 
+    hrm_runner = hrm.HRM()
+
+    stats = hrm_runner.next_isd(isd, 0)
 
     clear_e_n = 0
 
@@ -397,9 +461,15 @@ class HRMValidator(unittest.TestCase):
 
     dur_t = 1/15 * 1/15 * (3 / _REN_G_OTHER + 3 / _GCPY_BASE)
 
-    self.assertAlmostEqual(dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+    self.assertEqual(stats.gren_count, 3)
 
-    self.assertAlmostEqual(ngra_t, 1/15 * 1/15 * 3)
+    self.assertEqual(stats.gcpy_count, 3)
+
+    self.assertEqual(stats.nbg_total, 3)
+
+    self.assertAlmostEqual(stats.dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+
+    self.assertAlmostEqual(stats.ngra_t, 1/15 * 1/15 * 3)
 
   def test_multiple_bg_color(self):
     ttml_doc = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -428,7 +498,9 @@ class HRMValidator(unittest.TestCase):
 
     # run HRM
 
-    dur, ngra_t, _backbuffer = hrm._compute_dur(isd, 0, set()) 
+    hrm_runner = hrm.HRM()
+
+    stats = hrm_runner.next_isd(isd, 0) 
 
     clear_e_n = 0
 
@@ -436,26 +508,43 @@ class HRMValidator(unittest.TestCase):
 
     dur_t = 1/15 * 1/15 * (5 / _REN_G_OTHER + 0 / _GCPY_BASE)
 
-    self.assertAlmostEqual(dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+    self.assertEqual(stats.gren_count, 5)
 
-    self.assertAlmostEqual(ngra_t, 1/15 * 1/15 * 5)
+    self.assertEqual(stats.gcpy_count, 0)
+
+    self.assertEqual(stats.nbg_total, 6)
+
+    self.assertAlmostEqual(stats.dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+
+    self.assertAlmostEqual(stats.ngra_t, 1/15 * 1/15 * 5)
 
   def test_null_isd(self):
 
-    buffer = set()
+    hrm_runner = hrm.HRM()
 
-    dur, ngra_t, buffer = hrm._compute_dur(None, 0, buffer) 
+    stats = hrm_runner.next_isd(None, 0) 
 
-    self.assertAlmostEqual(dur, 0)
+    self.assertAlmostEqual(stats.dur, 0)
 
-    self.assertAlmostEqual(ngra_t, 0)
+    self.assertAlmostEqual(stats.ngra_t, 0)
+    
+    self.assertEqual(stats.gren_count, 0)
 
-    dur, ngra_t, _backbuffer = hrm._compute_dur(None, 1, buffer) 
+    self.assertEqual(stats.gcpy_count, 0)
 
-    self.assertAlmostEqual(dur, 1 / _BDRAW)
+    self.assertEqual(stats.nbg_total, 0)
 
-    self.assertAlmostEqual(ngra_t, 0)
+    stats = hrm_runner.next_isd(None, 1) 
 
+    self.assertAlmostEqual(stats.dur, 1 / _BDRAW)
+
+    self.assertAlmostEqual(stats.ngra_t, 0)
+
+    self.assertEqual(stats.gren_count, 0)
+
+    self.assertEqual(stats.gcpy_count, 0)
+
+    self.assertEqual(stats.nbg_total, 0)
 
 if __name__ == '__main__':
   unittest.main()

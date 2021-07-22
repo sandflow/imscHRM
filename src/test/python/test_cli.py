@@ -40,16 +40,16 @@ class DummyErrorHandler:
   def __init__(self):
     self.error_times = []
 
-  def info(self, msg: str, doc_index: int, time_offset: Fraction):
+  def info(self, msg: str, doc_index: int, time_offset: Fraction, available_time: Fraction, stats: imschrm.hrm.ISDStatistics):
     pass
 
-  def warn(self, msg: str, doc_index: int, time_offset: Fraction):
+  def warn(self, msg: str, doc_index: int, time_offset: Fraction, available_time: Fraction, stats: imschrm.hrm.ISDStatistics):
     pass
 
-  def error(self, _msg: str, _doc_index: int, time_offset: Fraction):
+  def error(self, _msg: str, _doc_index: int, time_offset: Fraction, _available_time: Fraction, _stats: imschrm.hrm.ISDStatistics):
     self.error_times.append(time_offset)
 
-  def debug(self, msg: str, doc_index: int, time_offset: Fraction):
+  def debug(self, msg: str, doc_index: int, time_offset: Fraction, available_time: Fraction, stats: imschrm.hrm.ISDStatistics):
     pass
 
 class ValidateTests(unittest.TestCase):
