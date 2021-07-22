@@ -432,7 +432,7 @@ class HRMValidator(unittest.TestCase):
 
     clear_e_n = 0
 
-    paint_e_n = 0.25 * 4
+    paint_e_n = 0.25 * 6
 
     dur_t = 1/15 * 1/15 * (5 / _REN_G_OTHER + 0 / _GCPY_BASE)
 

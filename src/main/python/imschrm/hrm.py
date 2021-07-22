@@ -145,10 +145,7 @@ def _compute_tot_norm_draw_area(isd: typing.Type[ttconv.isd.ISD], index_n: int):
 
         # should body elements really be excluded? -> NO
         # should transparent backgrounds really be counted? -> NO
-        # should spans really be included -> NO
-
-        if isinstance(element, ttconv.model.Span):
-          continue
+        # should span and br really be included -> yes for now
 
         bg_color = element.get_style(styles.StyleProperties.BackgroundColor)
 
