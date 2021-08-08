@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
   name='imschrm', 
-  version='1.0.0rc1',
+  version='1.0.0',
   description='Validates IMSC documents against the IMSC HRM',
   long_description=long_description,
   long_description_content_type="text/markdown",
