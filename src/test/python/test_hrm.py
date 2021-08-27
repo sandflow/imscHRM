@@ -96,7 +96,7 @@ class HRMValidator(unittest.TestCase):
 
     hrm_runner = hrm.HRM()
 
-    stats = hrm_runner.next_isd(isd, 0) 
+    stats = hrm_runner.next_isd(isd, 0, True) 
 
     clear_e_n = 0
 
@@ -144,7 +144,7 @@ class HRMValidator(unittest.TestCase):
 
     isd0 = ttconv.isd.ISD.from_model(doc, 0)
 
-    stats = hrm_runner.next_isd(isd0, 0) 
+    stats = hrm_runner.next_isd(isd0, 0, True) 
 
     clear_e_n = 0
 
@@ -166,7 +166,7 @@ class HRMValidator(unittest.TestCase):
 
     isd1 = ttconv.isd.ISD.from_model(doc, 1)
 
-    stats = hrm_runner.next_isd(isd1, 1) 
+    stats = hrm_runner.next_isd(isd1, 1, False) 
 
     clear_e_n = 1
 
@@ -213,7 +213,7 @@ class HRMValidator(unittest.TestCase):
 
     # run HRM
 
-    stats = hrm_runner.next_isd(isd, 0) 
+    stats = hrm_runner.next_isd(isd, 0, True) 
 
     clear_e_n = 0
 
@@ -260,7 +260,7 @@ class HRMValidator(unittest.TestCase):
 
     hrm_runner = hrm.HRM()
 
-    stats = hrm_runner.next_isd(isd, 0) 
+    stats = hrm_runner.next_isd(isd, 0, True) 
 
     clear_e_n = 0
 
@@ -307,7 +307,7 @@ class HRMValidator(unittest.TestCase):
 
     hrm_runner = hrm.HRM()
 
-    stats = hrm_runner.next_isd(isd, 0) 
+    stats = hrm_runner.next_isd(isd, 0, True) 
 
     clear_e_n = 0
 
@@ -354,7 +354,7 @@ class HRMValidator(unittest.TestCase):
 
     hrm_runner = hrm.HRM()
 
-    stats = hrm_runner.next_isd(isd, 0) 
+    stats = hrm_runner.next_isd(isd, 0, True) 
 
     clear_e_n = 0
 
@@ -401,7 +401,7 @@ class HRMValidator(unittest.TestCase):
 
     hrm_runner = hrm.HRM()
 
-    stats = hrm_runner.next_isd(isd, 0) 
+    stats = hrm_runner.next_isd(isd, 0, True) 
 
     clear_e_n = 0
 
@@ -453,7 +453,7 @@ class HRMValidator(unittest.TestCase):
 
     hrm_runner = hrm.HRM()
 
-    stats = hrm_runner.next_isd(isd, 0)
+    stats = hrm_runner.next_isd(isd, 0, True)
 
     clear_e_n = 0
 
@@ -500,7 +500,7 @@ class HRMValidator(unittest.TestCase):
 
     hrm_runner = hrm.HRM()
 
-    stats = hrm_runner.next_isd(isd, 0) 
+    stats = hrm_runner.next_isd(isd, 0, True) 
 
     clear_e_n = 0
 
@@ -522,7 +522,7 @@ class HRMValidator(unittest.TestCase):
 
     hrm_runner = hrm.HRM()
 
-    stats = hrm_runner.next_isd(None, 0) 
+    stats = hrm_runner.next_isd(None, 0, True) 
 
     self.assertAlmostEqual(stats.dur, 0)
 
@@ -534,9 +534,9 @@ class HRMValidator(unittest.TestCase):
 
     self.assertEqual(stats.nbg_total, 0)
 
-    stats = hrm_runner.next_isd(None, 1) 
+    stats = hrm_runner.next_isd(None, 1, True) 
 
-    self.assertAlmostEqual(stats.dur, 1 / _BDRAW)
+    self.assertAlmostEqual(stats.dur, 0)
 
     self.assertAlmostEqual(stats.ngra_t, 0)
 
