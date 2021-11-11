@@ -546,5 +546,55 @@ class HRMValidator(unittest.TestCase):
 
     self.assertEqual(stats.nbg_total, 0)
 
+  def test_br_ignored(self):
+    """Confirm that BR elements are excluded from NBG(Ri) computations
+    """
+
+    ttml_doc = '''<?xml version="1.0" encoding="UTF-8"?>
+<tt xml:lang="en"
+    xmlns="http://www.w3.org/ns/ttml"
+    xmlns:tts="http://www.w3.org/ns/ttml#styling">
+  <head>
+    <layout>
+      <region xml:id="r1" tts:extent="100% 100%"/>
+    </layout>
+  </head>
+  <body region="r1">
+    <div>
+      <p>
+        <span>hello<br tts:backgroundColor="blue"/></span>
+      </p>
+    </div>
+  </body>
+</tt>'''
+
+    doc = ttconv.imsc.reader.to_model(et.ElementTree(et.fromstring(ttml_doc)))
+
+    hrm_runner = hrm.HRM()
+
+    # create ISDs
+
+    isd = ttconv.isd.ISD.from_model(doc, 0)
+
+    # run HRM
+
+    stats = hrm_runner.next_isd(isd, 0, True) 
+
+    clear_e_n = 0
+
+    paint_e_n = 0
+
+    dur_t = 1/15 * 1/15 * (4 / _REN_G_OTHER + 1 / _GCPY_BASE)
+
+    self.assertEqual(stats.gren_count, 4)
+
+    self.assertEqual(stats.gcpy_count, 1)
+
+    self.assertEqual(stats.nbg_total, 0)
+
+    self.assertAlmostEqual(stats.dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+
+    self.assertAlmostEqual(stats.ngra_t, 1/15 * 1/15 * 4)
+
 if __name__ == '__main__':
   unittest.main()

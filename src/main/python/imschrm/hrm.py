@@ -192,6 +192,10 @@ class HRM:
           # should body elements really be excluded? -> NO
           # should transparent backgrounds really be counted? -> NO
           # should span and br really be included -> yes for now
+          # should br really be included -> no
+
+          if isinstance(element, ttconv.model.Br):
+            continue
 
           bg_color = element.get_style(styles.StyleProperties.BackgroundColor)
 
