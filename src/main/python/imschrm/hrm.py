@@ -57,10 +57,12 @@ class ISDStatistics:
   dur: Number = 0 # HRM ISD time
   dur_d: Number = 0 # HRM background drawing time
   nbg_total: Number = 0 # Number of backgrounds drawn
+  clear: bool = False # Whether the root container had to be cleared
   dur_t: Number = 0 # HRM text drawing time
   ngra_t: Number = 0 # Total Normalized Rendered Glyph Area
   gcpy_count: Number = 0 # Total number of glyphs copied
   gren_count: Number = 0 # Total number of glyphs rendered
+  is_empty: bool = False # Does the ISD contain any content
 
 
 class EventHandler:
@@ -73,7 +75,7 @@ class EventHandler:
     return (
       f"{msg} at {float(time_offset):.3f}s (doc #{doc_index})\n"
       f"  available time: {float(available_time):.3f}s | HRM time: {float(stats.dur):.3f}\n"
-      f"  Glyph copy count: {stats.gcpy_count} | render count: {stats.gren_count} | Background draw count: {stats.nbg_total}\n"
+      f"  Glyph copy count: {stats.gcpy_count} | render count: {stats.gren_count} | Background draw count: {stats.nbg_total} | Clear: {stats.clear}\n"
     )
 
 
@@ -101,12 +103,14 @@ def validate(isd_iterator: typing.Iterator[typing.Tuple[Fraction, ttconv.isd.ISD
 
   last_offset = 0
 
+  is_last_isd_empty = True
+
   for doc_index, (time_offset, isd) in enumerate(isd_iterator):
 
     if time_offset < last_offset:
       raise RuntimeError("ISDs are not in order of increasing offset")
 
-    stats = hrm.next_isd(isd, doc_index)
+    stats = hrm.next_isd(isd, doc_index, is_last_isd_empty)
 
     avail_render_time = _IPD if doc_index == 0 else time_offset - last_offset
 
@@ -118,7 +122,11 @@ def validate(isd_iterator: typing.Iterator[typing.Tuple[Fraction, ttconv.isd.ISD
 
     event_handler.debug("Processed document", doc_index, time_offset, avail_render_time, stats)
 
-    last_offset = time_offset
+    if not (stats.is_empty and is_last_isd_empty):
+      last_offset = time_offset
+
+    is_last_isd_empty = stats.is_empty
+
 
 @dataclass(frozen=True)
 class _Glyph:
@@ -143,13 +151,14 @@ class HRM:
     self,
     isd: typing.Type[ttconv.isd.ISD],
     index_n: int,
+    is_last_isd_empty: bool
     ) -> ISDStatistics:
 
     self.isd_stats = ISDStatistics()
 
     self._compute_dur_t(isd, index_n)
 
-    self._compute_dur_d(isd, index_n)
+    self._compute_dur_d(isd, index_n, is_last_isd_empty)
 
     self.isd_stats.dur = self.isd_stats.dur_t + self.isd_stats.dur_d
 
@@ -158,16 +167,23 @@ class HRM:
   def _compute_dur_d(
     self,
     isd: typing.Type[ttconv.isd.ISD],
-    index_n: int
+    index_n: int,
+    is_last_isd_empty: bool
     ):
 
-    draw_area = 0 if index_n == 0 else 1
+    self.isd_stats.is_empty = True
+
+    draw_area = 0 if index_n == 0 or is_last_isd_empty else 1
+
+    self.isd_stats.clear = draw_area != 0
 
     if isd is not None:
       for region in isd.iter_regions():
 
         if not _is_presented_region(region):
           continue
+
+        self.isd_stats.is_empty = False
 
         nbg = 0
 
@@ -176,6 +192,10 @@ class HRM:
           # should body elements really be excluded? -> NO
           # should transparent backgrounds really be counted? -> NO
           # should span and br really be included -> yes for now
+          # should br really be included -> no
+
+          if isinstance(element, ttconv.model.Br):
+            continue
 
           bg_color = element.get_style(styles.StyleProperties.BackgroundColor)
 
