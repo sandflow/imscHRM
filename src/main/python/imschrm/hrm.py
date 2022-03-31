@@ -37,7 +37,7 @@ import ttconv.isd
 import ttconv.style_properties as styles
 import ttconv.model
 
-from ._gcpy_codepoints import GCPY_12 
+from .codepoint_sets import GCPY_12, RENGI_06
 
 LOGGER = logging.getLogger(__name__)
 
@@ -291,7 +291,7 @@ def _compute_ren_g(char: str):
   if len(char) != 1:
     raise ValueError("Argument must be a string of length 1")
 
-  return _REN_G_CJK if 0x4E00 <= ord(char) <= 0x9FFF else _REN_G_OTHER
+  return _REN_G_CJK if ord(char) in RENGI_06 else _REN_G_OTHER
 
 def _compute_gcpy(char: str):
 
