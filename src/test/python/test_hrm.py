@@ -96,9 +96,9 @@ class HRMValidator(unittest.TestCase):
 
     hrm_runner = hrm.HRM()
 
-    stats = hrm_runner.next_isd(isd, 0, True) 
+    stats = hrm_runner.next_isd(isd) 
 
-    clear_e_n = 0
+    clear_e_n = 1
 
     paint_e_n = 0
 
@@ -144,9 +144,9 @@ class HRMValidator(unittest.TestCase):
 
     isd0 = ttconv.isd.ISD.from_model(doc, 0)
 
-    stats = hrm_runner.next_isd(isd0, 0, True) 
+    stats = hrm_runner.next_isd(isd0) 
 
-    clear_e_n = 0
+    clear_e_n = 1
 
     paint_e_n = 0
 
@@ -166,7 +166,7 @@ class HRMValidator(unittest.TestCase):
 
     isd1 = ttconv.isd.ISD.from_model(doc, 1)
 
-    stats = hrm_runner.next_isd(isd1, 1, False) 
+    stats = hrm_runner.next_isd(isd1) 
 
     clear_e_n = 1
 
@@ -213,9 +213,9 @@ class HRMValidator(unittest.TestCase):
 
     # run HRM
 
-    stats = hrm_runner.next_isd(isd, 0, True) 
+    stats = hrm_runner.next_isd(isd) 
 
-    clear_e_n = 0
+    clear_e_n = 1
 
     paint_e_n = 0
 
@@ -260,9 +260,9 @@ class HRMValidator(unittest.TestCase):
 
     hrm_runner = hrm.HRM()
 
-    stats = hrm_runner.next_isd(isd, 0, True) 
+    stats = hrm_runner.next_isd(isd) 
 
-    clear_e_n = 0
+    clear_e_n = 1
 
     paint_e_n = 0.25
 
@@ -307,9 +307,9 @@ class HRMValidator(unittest.TestCase):
 
     hrm_runner = hrm.HRM()
 
-    stats = hrm_runner.next_isd(isd, 0, True) 
+    stats = hrm_runner.next_isd(isd) 
 
-    clear_e_n = 0
+    clear_e_n = 1
 
     paint_e_n = 0
 
@@ -354,9 +354,9 @@ class HRMValidator(unittest.TestCase):
 
     hrm_runner = hrm.HRM()
 
-    stats = hrm_runner.next_isd(isd, 0, True) 
+    stats = hrm_runner.next_isd(isd) 
 
-    clear_e_n = 0
+    clear_e_n = 1
 
     paint_e_n = 0
 
@@ -401,9 +401,9 @@ class HRMValidator(unittest.TestCase):
 
     hrm_runner = hrm.HRM()
 
-    stats = hrm_runner.next_isd(isd, 0, True) 
+    stats = hrm_runner.next_isd(isd) 
 
-    clear_e_n = 0
+    clear_e_n = 1
 
     paint_e_n = 0
 
@@ -453,9 +453,9 @@ class HRMValidator(unittest.TestCase):
 
     hrm_runner = hrm.HRM()
 
-    stats = hrm_runner.next_isd(isd, 0, True)
+    stats = hrm_runner.next_isd(isd)
 
-    clear_e_n = 0
+    clear_e_n = 1
 
     paint_e_n = 0.75
 
@@ -500,9 +500,9 @@ class HRMValidator(unittest.TestCase):
 
     hrm_runner = hrm.HRM()
 
-    stats = hrm_runner.next_isd(isd, 0, True) 
+    stats = hrm_runner.next_isd(isd) 
 
-    clear_e_n = 0
+    clear_e_n = 1
 
     paint_e_n = 0.25 * 6
 
@@ -522,7 +522,7 @@ class HRMValidator(unittest.TestCase):
 
     hrm_runner = hrm.HRM()
 
-    stats = hrm_runner.next_isd(None, 0, True) 
+    stats = hrm_runner.next_isd(None) 
 
     self.assertAlmostEqual(stats.dur, 0)
 
@@ -534,7 +534,7 @@ class HRMValidator(unittest.TestCase):
 
     self.assertEqual(stats.nbg_total, 0)
 
-    stats = hrm_runner.next_isd(None, 1, True) 
+    stats = hrm_runner.next_isd(None) 
 
     self.assertAlmostEqual(stats.dur, 0)
 
@@ -578,9 +578,9 @@ class HRMValidator(unittest.TestCase):
 
     # run HRM
 
-    stats = hrm_runner.next_isd(isd, 0, True) 
+    stats = hrm_runner.next_isd(isd) 
 
-    clear_e_n = 0
+    clear_e_n = 1
 
     paint_e_n = 0
 
