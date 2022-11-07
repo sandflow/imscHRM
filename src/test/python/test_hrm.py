@@ -29,6 +29,7 @@ __author__ = "Pierre-Anthony Lemieux <pal@palemieux.com>"
 
 # pylint: disable=R0201,C0115,C0116,W0212
 import unittest
+from fractions import Fraction
 import xml.etree.ElementTree as et
 
 import ttconv.model as model
@@ -43,6 +44,13 @@ _GCPY_OTHER = 3
 
 _REN_G_CJK = 0.6
 _REN_G_OTHER = 1.2
+
+class InvalidError(RuntimeError):
+  pass
+
+class RaiseOnErrorHandler(hrm.EventHandler):
+  def error(self, msg: str, doc_index: int, time_offset: Fraction, available_time: Fraction, stats: hrm.ISDStatistics):
+    raise InvalidError()
 
 class HRMValidator(unittest.TestCase):
 
@@ -595,6 +603,104 @@ class HRMValidator(unittest.TestCase):
     self.assertAlmostEqual(stats.dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
 
     self.assertAlmostEqual(stats.ngra_t, 1/15 * 1/15 * 4)
+
+  def test_exceed_ipd(self):
+    ttml_doc = '''<?xml version="1.0" encoding="UTF-8"?>
+<tt xml:lang="en"
+    xmlns="http://www.w3.org/ns/ttml"
+    xmlns:tts="http://www.w3.org/ns/ttml#styling">
+  <head>
+    <layout>
+      <region xml:id="r1" tts:backgroundColor="black"/>
+    </layout>
+  </head>
+  <body region="r1">
+    <div>
+      <p begin="0s" end="1s">0</p>
+      <p begin="2s" end="3s" tts:fontSize="300%">abcdefghijklmnopqrstuvwxy</p>
+    </div>
+  </body>
+</tt>'''
+
+    doc = ttconv.imsc.reader.to_model(et.ElementTree(et.fromstring(ttml_doc)))
+
+    hrm_runner = hrm.HRM()
+
+    isd_list = ttconv.isd.ISD.generate_isd_sequence(doc)
+
+    hrm_runner.next_isd(isd_list[0][1])
+    hrm_runner.next_isd(isd_list[1][1])
+    stats = hrm_runner.next_isd(isd_list[2][1])
+
+    clear_e_n = 1
+
+    paint_e_n = 1
+
+    dur_t = 3/15 * 3/15 * (25 / _REN_G_OTHER)
+
+    self.assertEqual(stats.gren_count, 25)
+
+    self.assertEqual(stats.gcpy_count, 0)
+
+    self.assertEqual(stats.nbg_total, 1)
+
+    self.assertAlmostEqual(stats.dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+
+    self.assertAlmostEqual(stats.ngra_t, 3/15 * 3/15 * 25)
+
+    # expect failed validation
+
+    eh = RaiseOnErrorHandler()
+
+    with self.assertRaises(InvalidError):
+      hrm.validate(iter(isd_list), eh)
+
+  def test_ipd(self):
+    ttml_doc = '''<?xml version="1.0" encoding="UTF-8"?>
+<tt xml:lang="en"
+    xmlns="http://www.w3.org/ns/ttml"
+    xmlns:tts="http://www.w3.org/ns/ttml#styling">
+  <head>
+    <layout>
+      <region xml:id="r1" tts:backgroundColor="black"/>
+    </layout>
+  </head>
+  <body region="r1">
+    <div>
+      <p begin="0s" end="1s" tts:fontSize="300%">abcdefghijklmnopqrstuvwx</p>
+    </div>
+  </body>
+</tt>'''
+
+    doc = ttconv.imsc.reader.to_model(et.ElementTree(et.fromstring(ttml_doc)))
+
+    hrm_runner = hrm.HRM()
+
+    isd_list = ttconv.isd.ISD.generate_isd_sequence(doc)
+
+    stats = hrm_runner.next_isd(isd_list[0][1])
+
+    clear_e_n = 1
+
+    paint_e_n = 1
+
+    dur_t = 3/15 * 3/15 * (24 / _REN_G_OTHER)
+
+    self.assertEqual(stats.gren_count, 24)
+
+    self.assertEqual(stats.gcpy_count, 0)
+
+    self.assertEqual(stats.nbg_total, 1)
+
+    self.assertAlmostEqual(stats.dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+
+    self.assertAlmostEqual(stats.ngra_t, 3/15 * 3/15 * 24)
+
+    # expect failed validation
+
+    eh = RaiseOnErrorHandler()
+
+    hrm.validate(iter(isd_list), eh)
 
 if __name__ == '__main__':
   unittest.main()

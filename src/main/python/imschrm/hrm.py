@@ -110,16 +110,15 @@ def validate(isd_iterator: typing.Iterator[typing.Tuple[Fraction, ttconv.isd.ISD
 
     stats = hrm.next_isd(isd)
 
-    avail_render_time = time_offset - last_render_time
+    avail_render_time = min(_IPD, time_offset - last_render_time)
 
     event_handler.debug("Processed document", doc_index, time_offset, avail_render_time, stats)
 
     if not stats.is_empty:
-      
       if stats.dur > avail_render_time:
         event_handler.error("Rendering time exceeded", doc_index, time_offset, avail_render_time, stats)
 
-      if stats.ngra_t > 1:
+      if stats.ngra_t > _NGBS:
         event_handler.error("NGBS exceeded", doc_index, time_offset, avail_render_time, stats)
 
       last_render_time = time_offset
