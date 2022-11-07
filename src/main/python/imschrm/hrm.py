@@ -101,31 +101,27 @@ def validate(isd_iterator: typing.Iterator[typing.Tuple[Fraction, ttconv.isd.ISD
 
   hrm = HRM()
 
-  last_offset = 0
-
-  is_last_isd_empty = True
+  last_render_time = -_IPD
 
   for doc_index, (time_offset, isd) in enumerate(isd_iterator):
 
-    if time_offset < last_offset:
+    if time_offset <= last_render_time:
       raise RuntimeError("ISDs are not in order of increasing offset")
 
-    stats = hrm.next_isd(isd, doc_index, is_last_isd_empty)
+    stats = hrm.next_isd(isd)
 
-    avail_render_time = _IPD if doc_index == 0 else time_offset - last_offset
-
-    if stats.dur > avail_render_time:
-      event_handler.error("Rendering time exceeded", doc_index, time_offset, avail_render_time, stats)
-
-    if stats.ngra_t > 1:
-      event_handler.error("NGBS exceeded", doc_index, time_offset, avail_render_time, stats)
+    avail_render_time = min(_IPD, time_offset - last_render_time)
 
     event_handler.debug("Processed document", doc_index, time_offset, avail_render_time, stats)
 
-    if not (stats.is_empty and is_last_isd_empty):
-      last_offset = time_offset
+    if not stats.is_empty:
+      if stats.dur > avail_render_time:
+        event_handler.error("Rendering time exceeded", doc_index, time_offset, avail_render_time, stats)
 
-    is_last_isd_empty = stats.is_empty
+      if stats.ngra_t > _NGBS:
+        event_handler.error("NGBS exceeded", doc_index, time_offset, avail_render_time, stats)
+
+      last_render_time = time_offset
 
 
 @dataclass(frozen=True)
@@ -149,16 +145,14 @@ class HRM:
     
   def next_isd(
     self,
-    isd: typing.Type[ttconv.isd.ISD],
-    index_n: int,
-    is_last_isd_empty: bool
+    isd: typing.Type[ttconv.isd.ISD]
     ) -> ISDStatistics:
 
     self.isd_stats = ISDStatistics()
 
-    self._compute_dur_t(isd, index_n)
+    self._compute_dur_t(isd)
 
-    self._compute_dur_d(isd, index_n, is_last_isd_empty)
+    self._compute_dur_d(isd)
 
     self.isd_stats.dur = self.isd_stats.dur_t + self.isd_stats.dur_d
 
@@ -166,16 +160,12 @@ class HRM:
 
   def _compute_dur_d(
     self,
-    isd: typing.Type[ttconv.isd.ISD],
-    index_n: int,
-    is_last_isd_empty: bool
+    isd: typing.Type[ttconv.isd.ISD]
     ):
 
     self.isd_stats.is_empty = True
 
-    draw_area = 0 if index_n == 0 or is_last_isd_empty else 1
-
-    self.isd_stats.clear = draw_area != 0
+    draw_area = 0
 
     if isd is not None:
       for region in isd.iter_regions():
@@ -210,12 +200,15 @@ class HRM:
 
         self.isd_stats.nbg_total += nbg
 
+    draw_area += 0 if self.isd_stats.is_empty else 1
+
+    self.isd_stats.clear = draw_area != 0
+
     self.isd_stats.dur_d = draw_area / _BDRAW
 
   def _compute_dur_t(
     self,
-    isd: typing.Type[ttconv.isd.ISD],
-    _index_n: int
+    isd: typing.Type[ttconv.isd.ISD]
     ):
 
     front_buffer = set()
