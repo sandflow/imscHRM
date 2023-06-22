@@ -7,8 +7,8 @@
 
 ## Introduction
 
-_imschrm_ validates [IMSC](https://www.w3.org/TR/ttml-imsc1.1) documents against the [IMSC Hypothetical Render Model
-(HRM)](https://www.w3.org/TR/ttml-imsc1.1/#hypothetical-render-model), which constrains document complexity.
+_imschrm_ validates [IMSC](https://www.w3.org/TR/ttml-imsc/) documents against the [IMSC Hypothetical Render Model
+(HRM)](https://www.w3.org/TR/2023/CR-imsc-hrm-20230622/), which constrains document complexity.
 
 _imschrm_ consists of a library and command line application written in pure Python, and uses
 [ttconv](https://github.com/sandflow/ttconv).
@@ -82,4 +82,3 @@ mkdir build
 export PYTHONPATH=src/main/python
 pipenv run python src/main/python/imschrm/cli.py src/test/resources/ttml/fail001.ttml
 ```
-
