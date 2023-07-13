@@ -69,15 +69,21 @@ class EventHandler:
   '''Allows a callee to inform the caller of events that occur during processing. Typically
   overridden by the caller.
   '''
-  
+
   @staticmethod
   def _format_message(msg: str, doc_index: int, time_offset: Fraction, available_time: Fraction, stats: ISDStatistics):
-    return (
-      f"{msg} at {float(time_offset):.3f}s (doc #{doc_index})\n"
-      f"  available time: {float(available_time):.3f}s | HRM time: {float(stats.dur):.3f}\n"
-      f"  ngra_t: {float(stats.ngra_t):.3f}\n"
-      f"  Glyph copy count: {stats.gcpy_count} | render count: {stats.gren_count} | Background draw count: {stats.nbg_total} | Clear: {stats.clear}\n"
-    )
+    if stats.is_empty:
+      return (
+        f"{msg} at {float(time_offset):.3f}s (doc #{doc_index})\n"
+        f"  available time: {float(available_time):.3f}s | HRM time: 0 (Empty ISD)\n"
+      )
+    else:
+      return (
+        f"{msg} at {float(time_offset):.3f}s (doc #{doc_index})\n"
+        f"  available time: {float(available_time):.3f}s | HRM time: {float(stats.dur):.3f}\n"
+        f"  ngra_t: {float(stats.ngra_t):.3f}\n"
+        f"  Glyph copy count: {stats.gcpy_count} | render count: {stats.gren_count} | Background draw count: {stats.nbg_total} | Clear: {stats.clear}\n"
+      )
 
 
   def info(self, msg: str, doc_index: int, time_offset: Fraction, available_time: Fraction, stats: ISDStatistics):
