@@ -4,7 +4,7 @@
     xmlns:tts="http://www.w3.org/ns/ttml#styling">
   <body>
     <div>
-      <p begin="0s" end="1s" tts:fontSize="300%">abcdefghijklmnopqrstuvwxyz</p>
+      <p begin="0s" end="1s" tts:fontSize="300%">abcdefghijklmnopqrstuvwx</p>
     </div>
   </body>
 </tt>
