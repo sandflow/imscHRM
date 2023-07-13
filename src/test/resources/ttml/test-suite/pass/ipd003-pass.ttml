@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt xml:lang="en"
+    xmlns="http://www.w3.org/ns/ttml"
+    xmlns:tts="http://www.w3.org/ns/ttml#styling">
+  <head>
+    <styling>
+      <style xml:id="s1" tts:backgroundColor="red" />
+    </styling>
+    <layout>
+      <region xml:id="r1" style="s1"/>
+    </layout>
+  </head>
+  <body>
+    <div>
+      <p region="r1" begin="0s" end="1s"><span style="s1">a</span><span style="s1">b</span><span style="s1">c</span><span style="s1">d</span><span style="s1">e</span><span style="s1">f</span><span style="s1">g</span><span style="s1">h</span><span style="s1">i</span></p>
+    </div>
+  </body>
+</tt>
