@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- DUR > IPD at t = 0 due to rendering -->
-<!-- This can only be achieved with CJK characters, otherwise NGBS is exceeded before IPD is exceeded -->
-<!-- DUR_T(E_n) = 1 + 1.85/15 * 1.85/15 * (41 / 0.6) > 1 -->
+<!-- See corresponding fail test -->
 <tt xml:lang="en"
     xmlns="http://www.w3.org/ns/ttml"
     xmlns:tts="http://www.w3.org/ns/ttml#styling">
