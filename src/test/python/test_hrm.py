@@ -191,7 +191,87 @@ class HRMValidator(unittest.TestCase):
     self.assertAlmostEqual(stats.dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
 
     self.assertAlmostEqual(stats.ngra_t, 1/15 * 1/15 * 7)
-    
+
+
+  def test_buffering_across_isds_with_gap(self):
+    ttml_doc = '''<?xml version="1.0" encoding="UTF-8"?>
+<tt xml:lang="en"
+    xmlns="http://www.w3.org/ns/ttml"
+    xmlns:tts="http://www.w3.org/ns/ttml#styling">
+  <head>
+    <layout>
+      <region xml:id="r1" tts:extent="100% 100%"/>
+    </layout>
+  </head>
+  <body region="r1">
+    <div>
+      <p begin="0s" end="0.5s">
+        <span>hello</span>
+      </p>
+      <p begin="1s" end="2s">
+        <span>bonjour bonjour</span>
+      </p>
+    </div>
+  </body>
+</tt>'''
+
+    doc = ttconv.imsc.reader.to_model(et.ElementTree(et.fromstring(ttml_doc)))
+
+    hrm_runner = hrm.HRM()
+
+    # isd at t = 0
+
+    isd0 = ttconv.isd.ISD.from_model(doc, 0)
+
+    stats = hrm_runner.next_isd(isd0) 
+
+    clear_e_n = 1
+
+    paint_e_n = 0
+
+    dur_t = 1/15 * 1/15 * (4 / _REN_G_OTHER + 1 / _GCPY_BASE)
+
+    self.assertEqual(stats.gren_count, 4)
+
+    self.assertEqual(stats.gcpy_count, 1)
+
+    self.assertEqual(stats.nbg_total, 0)
+
+    self.assertAlmostEqual(stats.dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+
+    self.assertAlmostEqual(stats.ngra_t, 1/15 * 1/15 * 4)
+
+    # isd at t = 0.5
+
+    isd1 = ttconv.isd.ISD.from_model(doc, 0.5)
+
+    stats = hrm_runner.next_isd(isd1)
+
+    self.assertTrue(stats.is_empty)
+
+    # isd at t = 1
+
+    isd2 = ttconv.isd.ISD.from_model(doc, 1)
+
+    stats = hrm_runner.next_isd(isd2) 
+
+    clear_e_n = 1
+
+    paint_e_n = 0
+
+    dur_t = 1/15 * 1/15 * (6 / _REN_G_OTHER + 9 / _GCPY_BASE)
+
+    self.assertEqual(stats.gren_count, 6)
+
+    self.assertEqual(stats.gcpy_count, 9)
+
+    self.assertEqual(stats.nbg_total, 0)
+
+    self.assertAlmostEqual(stats.dur, (clear_e_n + paint_e_n) / _BDRAW + dur_t)
+
+    self.assertAlmostEqual(stats.ngra_t, 1/15 * 1/15 * 7)
+
+
   def test_doc_3(self):
     ttml_doc = '''<?xml version="1.0" encoding="UTF-8"?>
 <tt xml:lang="en"
