@@ -75,6 +75,7 @@ class EventHandler:
     return (
       f"{msg} at {float(time_offset):.3f}s (doc #{doc_index})\n"
       f"  available time: {float(available_time):.3f}s | HRM time: {float(stats.dur):.3f}\n"
+      f"  ngra_t: {float(stats.ngra_t):.3f}\n"
       f"  Glyph copy count: {stats.gcpy_count} | render count: {stats.gren_count} | Background draw count: {stats.nbg_total} | Clear: {stats.clear}\n"
     )
 
@@ -92,7 +93,7 @@ class EventHandler:
     LOGGER.debug(EventHandler._format_message(msg, doc_index, time_offset, available_time, stats))
 
 
-def validate(isd_iterator: typing.Iterator[typing.Tuple[Fraction, ttconv.isd.ISD]], event_handler: typing.Type[EventHandler]=EventHandler()):
+def validate(isd_iterator: typing.Iterator[typing.Tuple[Fraction, ttconv.isd.ISD]], event_handler: typing.Type[EventHandler]=EventHandler(), tolerance: float=0):
   '''Determines whether the sequence of ISDs returned by `isd_iterator` conform to the IMSC HRM.
   `isd_iterator` returns a sequence of tuplets `(begin, ISD)`, where `ISD` is an ISD instance whose
   active interval starts at `begin` seconds and ends immediately before the `begin` value of the next 
@@ -115,10 +116,10 @@ def validate(isd_iterator: typing.Iterator[typing.Tuple[Fraction, ttconv.isd.ISD
     event_handler.debug("Processed document", doc_index, time_offset, avail_render_time, stats)
 
     if not stats.is_empty:
-      if stats.dur > avail_render_time:
+      if stats.dur - avail_render_time > tolerance:
         event_handler.error("Rendering time exceeded", doc_index, time_offset, avail_render_time, stats)
 
-      if stats.ngra_t > _NGBS:
+      if stats.ngra_t - _NGBS > tolerance:
         event_handler.error("NGBS exceeded", doc_index, time_offset, avail_render_time, stats)
 
       last_render_time = time_offset
@@ -150,11 +151,23 @@ class HRM:
 
     self.isd_stats = ISDStatistics()
 
-    self._compute_dur_t(isd)
+    self.isd_stats.is_empty = True
 
-    self._compute_dur_d(isd)
+    if isd is not None:
+      for region in isd.iter_regions():
 
-    self.isd_stats.dur = self.isd_stats.dur_t + self.isd_stats.dur_d
+        if not _is_presented_region(region):
+          continue
+
+        self.isd_stats.is_empty = False
+
+    if not self.isd_stats.is_empty:
+
+      self._compute_dur_t(isd)
+
+      self._compute_dur_d(isd)
+
+      self.isd_stats.dur = self.isd_stats.dur_t + self.isd_stats.dur_d
 
     return self.isd_stats
 
