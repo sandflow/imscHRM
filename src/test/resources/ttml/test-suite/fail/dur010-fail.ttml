@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt xml:lang="en"
+    xmlns="http://www.w3.org/ns/ttml"
+    xmlns:tts="http://www.w3.org/ns/ttml#styling">
+  <body>
+    <div>
+      <p begin="0s" end="0.5s" tts:fontSize="185%">あいうえおかきくけこさしすせそたち</p>
+      <p begin="0.5s" end="4s" tts:fontWeight="bold" tts:fontSize="185%">あいうえおかきくけこさしすせそたち</p>
+    </div>
+  </body>
+</tt>

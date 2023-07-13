@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NGBS exceeded on first ISD -->
+<!-- NGBS(E_n) = 3/15 * 3/15 * 26 > 1 -->
+<tt xml:lang="en"
+    xmlns="http://www.w3.org/ns/ttml"
+    xmlns:tts="http://www.w3.org/ns/ttml#styling">
+  <body>
+    <div>
+      <p begin="0s" end="1s" tts:fontSize="300%">abcdefghijklmnopqrstuvwxyz</p>
+    </div>
+  </body>
+</tt>

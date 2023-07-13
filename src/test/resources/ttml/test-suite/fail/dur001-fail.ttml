@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt xml:lang="en"
+    xmlns="http://www.w3.org/ns/ttml"
+    xmlns:tts="http://www.w3.org/ns/ttml#styling">
+  <head>
+  </head>
+  <body>
+    <div>
+      <p begin="2.5s" end="3s" tts:fontSize="185%">a</p>
+      <p begin="3s" end="4s" tts:fontSize="185%">あいうえおかきくけこさしすせそたち</p>
+    </div>
+  </body>
+</tt>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt xml:lang="en"
+    xmlns="http://www.w3.org/ns/ttml"
+    xmlns:tts="http://www.w3.org/ns/ttml#styling">
+  <head>
+    <styling>
+      <style xml:id="s1" tts:backgroundColor="red" />
+    </styling>
+    <layout>
+      <region xml:id="r1" style="s1" tts:extent="50% 50%" tts:origin="0% 0%"/>
+      <region xml:id="r2" style="s1" tts:extent="50% 50%" tts:origin="0% 50%"/>
+      <region xml:id="r3" style="s1" tts:extent="50% 50%" tts:origin="50% 50%"/>
+      <region xml:id="r4" tts:extent="50% 50%" tts:origin="50% 0%"/>
+    </layout>
+  </head>
+  <body>
+    <div>
+      <p region="r4" begin="0s" end="0.2s">ABCDEF</p>
+      <p region="r1" begin="0.31s" end="4s"><span style="s1">abcdef</span></p>
+      <p region="r2" begin="0.31s" end="4s"><span style="s1">ghijkl</span></p>
+      <p region="r3" begin="0.31s" end="4s"><span style="s1">mnopqr</span></p>
+      <p region="r4" begin="0.31s" end="4s"><span style="s1">stuvwy</span></p>
+    </div>
+  </body>
+</tt>
