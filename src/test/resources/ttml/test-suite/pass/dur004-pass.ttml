@@ -6,8 +6,8 @@
   </head>
   <body>
     <div>
-      <p begin="2.5s" end="3s">z</p>
-      <p begin="3s" end="4s" tts:fontSize="300%">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</p>
+      <p begin="2.5s" end="3s" tts:fontSize="300%">a</p>
+      <p begin="3s" end="4s" tts:fontSize="300%">あああああああああああああああああああああああああああ</p>
     </div>
   </body>
 </tt>
