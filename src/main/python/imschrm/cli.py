@@ -95,7 +95,7 @@ def main(argv=None):
     logging.basicConfig(level=logging.WARNING)
 
 
-  imschrm.hrm.validate(imschrm.doc_sequence.iter_isd(doc_sequence), ev)
+  imschrm.hrm.validate(imschrm.doc_sequence.iter_isd(doc_sequence), ev, 0)
 
   if ev.failed:
     print("Validation failed")
