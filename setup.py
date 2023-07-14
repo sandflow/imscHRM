@@ -4,8 +4,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
   long_description = fh.read()
 
 setup(
-  name='imschrm', 
-  version='1.1.0b2',
+  name='imschrm',
+  version='1.1.0b3',
   description='Validates IMSC documents against the IMSC HRM',
   long_description=long_description,
   long_description_content_type="text/markdown",
