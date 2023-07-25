@@ -13,6 +13,10 @@ _imschrm_ validates [IMSC](https://www.w3.org/TR/ttml-imsc/) documents against t
 _imschrm_ consists of a library and command line application written in pure Python, and uses
 [ttconv](https://github.com/sandflow/ttconv).
 
+## Demo web app
+
+A demo web app based on _imschrm_ is available at https://hrm.sandflow.com/.
+
 ## Known issues
 
 Issues are tracked at https://github.com/sandflow/imscHRM/issues.
