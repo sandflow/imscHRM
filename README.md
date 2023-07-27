@@ -17,16 +17,18 @@ _imschrm_ consists of a library and command line application written in pure Pyt
 
 A demo web app based on _imschrm_ is available at https://hrm.sandflow.com/.
 
+## Quick start
+
+Install the most recent development release:
+
+```sh
+    pip install imschrm --pre
+    imschrm <input IMSC document>
+```
+
 ## Known issues
 
 Issues are tracked at https://github.com/sandflow/imscHRM/issues.
-
-## Quick start
-
-```sh
-    pip install imschrm
-    imschrm <input IMSC document>
-```
 
 ## Command line
 
