@@ -7,7 +7,7 @@ verify_ssl = true
 pylint = "*"
 
 [packages]
-ttconv = "1.0.8-a1"
+ttconv = "1.0.8-a2"
 
 [requires]
 python_version = "3.8"
