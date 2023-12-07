@@ -46,24 +46,24 @@ class EventHandler(imschrm.hrm.EventHandler):
 class HRMTestSuite(unittest.TestCase):
 
   def test_fail_test_suite(self):
-    ev = EventHandler()
     for root, _subdirs, files in os.walk("src/test/resources/ttml/test-suite/fail"):
       for filename in files:
         (name, ext) = os.path.splitext(filename)
         if ext == ".ttml":
           with self.subTest(name):
             with open(os.path.join(root, filename), "r", encoding="utf-8") as f:
+              ev = EventHandler()
               imschrm.hrm.validate(imschrm.doc_sequence.iter_isd([(0, None, f.read())]), ev, 0)
               self.assertTrue(ev.failed)
 
   def test_pass_test_suite(self):
-    ev = EventHandler()
     for root, _subdirs, files in os.walk("src/test/resources/ttml/test-suite/pass"):
       for filename in files:
         (name, ext) = os.path.splitext(filename)
         if ext == ".ttml":
           with self.subTest(name):
             with open(os.path.join(root, filename), "r", encoding="utf-8") as f:
+              ev = EventHandler()
               imschrm.hrm.validate(imschrm.doc_sequence.iter_isd([(0, None, f.read())]), ev, 0)
               self.assertFalse(ev.failed)
 
