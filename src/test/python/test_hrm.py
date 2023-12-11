@@ -799,7 +799,7 @@ class HRMValidator(unittest.TestCase):
   </head>
   <body>
     <div>
-      <p xml:id="p0" begin="00:00:02.5" end="00:00:03">a</p>
+      <p xml:id="p0" begin="00:00:02.5" end="00:00:03"></p>
       <p xml:id="p1" region="r1" begin="00:00:03" end="00:00:04"><span style="s1">a</span><span style="s1">b</span><span style="s1">c</span><span style="s1">d</span></p>
     </div>
   </body>
@@ -807,15 +807,10 @@ class HRMValidator(unittest.TestCase):
 
     doc = ttconv.imsc.reader.to_model(et.ElementTree(et.fromstring(ttml_doc)))
 
-    hrm_runner = hrm.HRM()
-
-    # create ISDs
-
-    isd = ttconv.isd.ISD.from_model(doc, 0)
-
-    # run HRM
-
-    stats = hrm_runner.next_isd(isd)
+    # expect failed validation since the <p> generates an ISD even though it contains not textual content
+    eh = RaiseOnErrorHandler()
+    with self.assertRaises(InvalidError):
+      hrm.validate(doc_sequence.iter_isd([(0, None, ttml_doc)]), eh)
 
   def test_show_background(self):
     ttml_doc = '''<tt xml:lang="en"
