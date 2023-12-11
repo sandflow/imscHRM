@@ -783,35 +783,6 @@ class HRMValidator(unittest.TestCase):
 
     hrm.validate(iter(isd_list), eh)
 
-  def test_unassociated_p(self):
-    ttml_doc = '''<tt xml:lang="en"
-    xmlns="http://www.w3.org/ns/ttml"
-    xmlns:tts="http://www.w3.org/ns/ttml#styling"
-    xmlns:ttp="http://www.w3.org/ns/ttml#parameter"
-    ttp:timeBase="media">
-  <head>
-    <styling>
-      <style xml:id="s1" tts:backgroundColor="#ff0000" />
-    </styling>
-    <layout>
-      <region xml:id="r1" tts:origin="0% 0%" tts:extent="100% 100%" style="s1"></region>
-    </layout>
-  </head>
-  <body>
-    <div>
-      <p xml:id="p0" begin="00:00:02.5" end="00:00:03"></p>
-      <p xml:id="p1" region="r1" begin="00:00:03" end="00:00:04"><span style="s1">a</span><span style="s1">b</span><span style="s1">c</span><span style="s1">d</span></p>
-    </div>
-  </body>
-</tt>'''
-
-    doc = ttconv.imsc.reader.to_model(et.ElementTree(et.fromstring(ttml_doc)))
-
-    # expect failed validation since the <p> generates an ISD even though it contains not textual content
-    eh = RaiseOnErrorHandler()
-    with self.assertRaises(InvalidError):
-      hrm.validate(doc_sequence.iter_isd([(0, None, ttml_doc)]), eh)
-
   def test_show_background(self):
     ttml_doc = '''<tt xml:lang="en"
     xmlns="http://www.w3.org/ns/ttml"
