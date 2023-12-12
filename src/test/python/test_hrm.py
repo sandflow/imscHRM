@@ -36,6 +36,7 @@ import ttconv.model as model
 import ttconv.isd
 import ttconv.style_properties as styles
 import ttconv.imsc.reader
+import imschrm.doc_sequence as doc_sequence
 import imschrm.hrm as hrm
 
 _BDRAW = 12
@@ -781,6 +782,37 @@ class HRMValidator(unittest.TestCase):
     eh = RaiseOnErrorHandler()
 
     hrm.validate(iter(isd_list), eh)
+
+  def test_show_background(self):
+    ttml_doc = '''<tt xml:lang="en"
+    xmlns="http://www.w3.org/ns/ttml"
+    xmlns:tts="http://www.w3.org/ns/ttml#styling"
+    xmlns:ttp="http://www.w3.org/ns/ttml#parameter"
+    ttp:timeBase="media">
+  <head>
+    <styling>
+      <style xml:id="s1" tts:backgroundColor="#ff0000" />
+    </styling>
+    <layout>
+      <region xml:id="r1" style="s1" tts:extent="50% 50%" tts:origin="0% 0%"/>
+      <region xml:id="r4" tts:extent="50% 50%" tts:origin="50% 0%"/>
+    </layout>
+  </head>
+  <body>
+    <div>
+      <p region="r4" begin="00:00:00" end="00:00:00.2" xml:id="p0">ABCDEF</p>
+      <p region="r1" begin="00:00:00.25" end="00:00:04" xml:id="p1"><span style="s1">a</span></p>
+    </div>
+  </body>
+</tt>'''
+
+    doc = ttconv.imsc.reader.to_model(et.ElementTree(et.fromstring(ttml_doc)))
+
+    # expect failed validation since there a cost to drawing r1 between the two <p>
+    eh = RaiseOnErrorHandler()
+    with self.assertRaises(InvalidError):
+      hrm.validate(doc_sequence.iter_isd([(0, None, ttml_doc)]), eh)
+
 
 if __name__ == '__main__':
   unittest.main()
