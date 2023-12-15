@@ -813,6 +813,29 @@ class HRMValidator(unittest.TestCase):
     with self.assertRaises(InvalidError):
       hrm.validate(doc_sequence.iter_isd([(0, None, ttml_doc)]), eh)
 
+  def test_unassociated_p(self):
+    ttml_doc = '''<tt xml:lang="en"
+    xmlns="http://www.w3.org/ns/ttml"
+    xmlns:tts="http://www.w3.org/ns/ttml#styling">
+  <head>
+    <layout>
+      <region xml:id="r1" tts:backgroundColor="#ff0000"></region>
+    </layout>
+  </head>
+  <body>
+    <div>
+      <p xml:id="p0" begin="00:00:02.9" end="00:00:03"></p>
+      <p xml:id="p1" region="r1" begin="00:00:03" end="00:00:04">hello</p>
+    </div>
+  </body>
+</tt>'''
+
+    doc = ttconv.imsc.reader.to_model(et.ElementTree(et.fromstring(ttml_doc)))
+
+    # expect failed validation since p0 generates an ISD even though it contains not textual content
+    eh = RaiseOnErrorHandler()
+    with self.assertRaises(InvalidError):
+      hrm.validate(doc_sequence.iter_isd([(0, None, ttml_doc)]), eh)
 
 if __name__ == '__main__':
   unittest.main()
