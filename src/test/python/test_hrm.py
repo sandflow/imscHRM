@@ -832,7 +832,7 @@ class HRMValidator(unittest.TestCase):
 
     doc = ttconv.imsc.reader.to_model(et.ElementTree(et.fromstring(ttml_doc)))
 
-    # expect failed validation since p0 generates an ISD even though it contains not textual content
+    # expect failed validation since p0 generates an ISD even though it contains not textual content because the region has a background
     eh = RaiseOnErrorHandler()
     with self.assertRaises(InvalidError):
       hrm.validate(doc_sequence.iter_isd([(0, None, ttml_doc)]), eh)
