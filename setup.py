@@ -16,7 +16,7 @@ setup(
     'Bug Reports': 'https://github.com/sandflow/imscHRM/issues',
     'Source': 'https://github.com/sandflow/imscHRM',
   },
-  install_requires = ["ttconv@git+https://github.com/sandflow/ttconv.git#3bc783e5a18f1b3437727bd8166c7d40ace7a6cd"],
+  install_requires = ["ttconv>=1.1.0rc1"],
   classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
