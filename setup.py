@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
   name='imschrm',
-  version='1.1.0b7',
+  version='1.1.0',
   description='Validates IMSC documents against the IMSC HRM',
   long_description=long_description,
   long_description_content_type="text/markdown",
@@ -16,7 +16,7 @@ setup(
     'Bug Reports': 'https://github.com/sandflow/imscHRM/issues',
     'Source': 'https://github.com/sandflow/imscHRM',
   },
-  install_requires = ["ttconv@git+https://github.com/sandflow/ttconv.git#3bc783e5a18f1b3437727bd8166c7d40ace7a6cd"],
+  install_requires = ["ttconv>=1.1.0"],
   classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',

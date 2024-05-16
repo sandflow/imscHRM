@@ -7,7 +7,7 @@ verify_ssl = true
 pylint = "*"
 
 [packages]
-ttconv = {ref = "3bc783e5a18f1b3437727bd8166c7d40ace7a6cd", git = "git+https://github.com/sandflow/ttconv.git"}
+ttconv = "1.1.0"
 
 [requires]
 python_version = "3.8"
